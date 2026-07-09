@@ -42,11 +42,21 @@ a broken baseline downgrades the run to **inconclusive**, never "clean".
 ```bash
 npm install                     # deps: jose, @coinbase/cdp-core, vite, tsx, typescript
 npm run genkeys                 # → keys/signing-key.json (🔒) + public/jwks.json ; seeds config.local.json
-#   edit config.local.json: set iss / aud (stable strings) — MUST match the CDP portal exactly.
-#   (projectId is filled from the operator step below.)
-npm run mint                    # → out/matrix.json (38 signed JWTs). Re-run after editing iss/aud.
-npm run dev                     # → http://localhost:5173  → click "Run collision matrix"
+#   edit config.local.json: set iss / aud / projectId — MUST match the CDP portal exactly.
+npm run collide                 # ★ PRIMARY: headless live run (no browser). Signs fresh + POSTs each
+                                #   row to the custom-auth endpoint, groups by userId, prints verdict.
 ```
+
+**`npm run collide` is the test.** It needs no browser, no SDK, no polyfills — it signs a fresh JWT per
+row and POSTs to `POST /v2/embedded-wallet-api/projects/{projectId}/auth/custom/authenticate`
+(`Authorization: Bearer <jwt>`), reading the server-side `endUser.userId`. Oracle: two distinct `sub`
+values → one `userId` = shared identity = **C41**. It also checks the control baseline (A≠B, repeat-A==A;
+a broken baseline ⇒ INCONCLUSIVE, never "clean") and flags iss/aud confusion.
+
+Optional browser path (only if you want the full **wallet-address** layer, which needs the secure-enclave
+key ceremony): `npm run mint` then `npm run dev` → localhost:5173 → "Run collision matrix". ⚠️ The CDP
+browser SDK transitively needs `react` + a Node `Buffer` polyfill (`vite-plugin-node-polyfills`); the
+headless runner avoids all of that. The identity oracle (userId) is authoritative for C41 on its own.
 
 Pages hosts **only `public/jwks.json`** (via `.github/workflows/deploy.yml`) — the app runs locally,
 so nothing else needs deploying. A full `npm run build` (`PAGES_BASE=/<repo>/ npm run build` → `dist/`)

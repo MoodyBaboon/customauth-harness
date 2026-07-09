@@ -7,6 +7,7 @@
   "scripts": {
     "genkeys": "tsx scripts/genkeys.ts",
     "mint": "tsx scripts/mint.ts",
+    "collide": "tsx scripts/collide.ts",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
