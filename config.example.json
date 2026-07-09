@@ -1,0 +1,7 @@
+{
+  "iss": "https://<user>.github.io/<repo>",
+  "aud": "cdp-customauth-harness",
+  "jwksPath": "/jwks.json",
+  "projectId": "<CDP project id from portal>",
+  "ttlSeconds": 300
+}

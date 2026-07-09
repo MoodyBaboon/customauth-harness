@@ -1,0 +1,15 @@
+# 🔒 secrets — NEVER commit
+keys/
+config.local.json
+.env
+.env.*
+
+# minted JWTs (bearer-ish; testnet throwaway) — keep out of git
+out/
+
+# build / deps
+node_modules/
+dist/
+*.log
+
+# NB: public/jwks.json is intentionally NOT ignored — it is public and must be published to Pages.
