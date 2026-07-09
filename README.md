@@ -48,11 +48,10 @@ npm run mint                    # → out/matrix.json (38 signed JWTs). Re-run a
 npm run dev                     # → http://localhost:5173  → click "Run collision matrix"
 ```
 
-Production build for GitHub Pages (only `jwks.json` + static app; JWTs are throwaway):
-
-```bash
-PAGES_BASE=/<repo-name>/ npm run build     # → dist/ (contains jwks.json at dist/jwks.json)
-```
+Pages hosts **only `public/jwks.json`** (via `.github/workflows/deploy.yml`) — the app runs locally,
+so nothing else needs deploying. A full `npm run build` (`PAGES_BASE=/<repo>/ npm run build` → `dist/`)
+is optional and for local inspection only; do **not** publish `dist/` (it would bundle the throwaway
+minted JWTs from `out/`).
 
 Console dumps a machine-readable `C41_RESULTS` JSON for the repo write-up.
 
@@ -63,15 +62,20 @@ Console dumps a machine-readable `C41_RESULTS` JSON for the repo write-up.
 CDP custom-auth and built-in auth are **mutually exclusive**, so use a **fresh CDP project**.
 
 1. **CDP Portal → new project → Embedded Wallets → Auth = Custom Auth (JWT).**
-2. Publish this repo & enable **GitHub Pages** (Settings → Pages → build the `dist/` output, e.g. via
-   an Actions workflow or the `gh-pages` branch). Confirm `https://<user>.github.io/<repo>/jwks.json`
-   loads and returns the JWKS.
+   Use a *fresh project* (the mutual-exclusivity is per-project, not per-account — a project that
+   already has built-in auth or a server-wallet key won't let you switch to custom-auth). A second
+   CDP account works as a clean slate but is not required; C41 needs only this one project.
+2. **Publish this repo & enable Pages via the included workflow** (`.github/workflows/deploy.yml`):
+   push to `main`, then repo **Settings → Pages → Source = "GitHub Actions"**. The workflow hosts
+   **only `public/jwks.json`** (the app is NOT deployed — it runs locally). Confirm
+   `https://<user>.github.io/<repo>/jwks.json` loads and returns the JWKS.
 3. In the portal custom-auth config, set:
    - **JWKS URL** = `https://<user>.github.io/<repo>/jwks.json`
    - **iss** = the same string you put in `config.local.json`
    - **aud** = the same string you put in `config.local.json`
    - **claim** = `sub`
-   - **domain allowlist** += `http://localhost:5173` (for `npm run dev`) and/or the Pages origin.
+   - **domain allowlist** += `http://localhost:5173` (the origin the harness runs on). The Pages
+     origin does NOT need allowlisting — CDP fetches the JWKS server-side, not via the browser.
 4. Copy the **projectId** into `config.local.json` (`projectId` field). Save.
    *(A `clientApiKey` is not consumed by `@coinbase/cdp-core.initialize` — projectId + the domain
    allowlist are what gate the browser flow. Keep any client key out of git regardless.)*

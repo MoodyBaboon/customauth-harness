@@ -1,0 +1,62 @@
+name: Deploy JWKS to Pages
+
+# Publishes ONLY the public JWKS (public/jwks.json) to GitHub Pages, so a Coinbase CDP
+# custom-auth project can server-side-fetch it at https://<user>.github.io/<repo>/jwks.json.
+#
+# The harness app itself is NOT deployed — it runs locally (npm run dev on localhost:5173,
+# which the operator allowlists in the CDP portal). This keeps the private key and the minted
+# JWTs (out/matrix.json, gitignored) off any public host; only the public keys are hosted.
+#
+# One-time setup by the operator: repo Settings → Pages → Source = "GitHub Actions".
+
+on:
+  push:
+    branches: [main]
+    paths: ['public/jwks.json', '.github/workflows/deploy.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time; let a newer push supersede an in-flight one.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble Pages site (public JWKS only)
+        run: |
+          set -euo pipefail
+          test -f public/jwks.json || { echo "::error::public/jwks.json missing — run 'npm run genkeys' and commit it"; exit 1; }
+          mkdir -p _site
+          cp public/jwks.json _site/jwks.json
+          cat > _site/index.html <<'HTML'
+          <!doctype html>
+          <meta charset="utf-8">
+          <title>CDP custom-auth JWKS host</title>
+          <body style="font:14px ui-monospace,monospace;max-width:40rem;margin:3rem auto">
+            <h1>CDP custom-auth — JWKS host</h1>
+            <p>Public JWKS for a Coinbase CDP custom-auth (JWT) project. Only the public verification
+            keys are hosted here; the test harness runs locally (localhost:5173).</p>
+            <p>→ <a href="./jwks.json">jwks.json</a></p>
+          </body>
+          HTML
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
