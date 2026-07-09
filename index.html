@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Custom-Auth Harness — C41 claim-collision</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body { font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; margin: 1.5rem; max-width: 1100px; }
+      h1 { font-size: 1.2rem; }
+      button { font: inherit; padding: .5rem 1rem; cursor: pointer; }
+      button:disabled { opacity: .5; cursor: progress; }
+      #verdict { padding: .75rem; margin: 1rem 0; border-radius: 6px; white-space: pre-wrap; }
+      #verdict.collision { background: #ffdddd; color: #900; font-weight: bold; }
+      #verdict.clean { background: #ddffdd; color: #060; }
+      #verdict.pending { background: #eee; color: #555; }
+      table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+      th, td { border: 1px solid #8884; padding: .3rem .5rem; text-align: left; vertical-align: top; }
+      th { background: #8882; position: sticky; top: 0; }
+      td.addr { font-size: .85em; word-break: break-all; }
+      tr.err td { color: #b00; }
+      tr.hit td { background: #ffe0e0; font-weight: bold; }
+      .note { color: #888; font-size: .85em; }
+      code { background: #8882; padding: 0 .25em; border-radius: 3px; }
+    </style>
+  </head>
+  <body>
+    <h1>🔥 Custom-Auth Harness — CDP C41 claim-collision</h1>
+    <p>
+      Runs every JWT in <code>out/matrix.json</code> through <code>authenticateWithJWT</code> and groups the
+      resulting wallet addresses. <strong>Two distinct <code>sub</code> mutations → one address = C41
+      wallet-takeover.</strong> Testnet / throwaway end-users only.
+    </p>
+    <button id="run">▶ Run collision matrix</button>
+    <div id="verdict" class="pending">Not run yet.</div>
+    <div id="results"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "name": "customauth-harness",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Reusable custom-JWT auth harness — v1 target: Coinbase CDP embedded wallets (C41 claim-collision).",
+  "scripts": {
+    "genkeys": "tsx scripts/genkeys.ts",
+    "mint": "tsx scripts/mint.ts",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.7"
+  },
+  "dependencies": {
+    "@coinbase/cdp-core": "^0.0.113",
+    "jose": "^5.9.6"
+  }
+}
